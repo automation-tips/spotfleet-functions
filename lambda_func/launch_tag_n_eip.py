@@ -43,4 +43,4 @@ def lambda_handler(event, context):
     return eip
 
 
-print(lambda_handler({"LaunchedInstance": "i-xxxxxxxxxxxxxxxx"}, "aaa"))
+# print(lambda_handler({"LaunchedInstance": "i-xxxxxxxxxxxxxxxx"}, "aaa")) -> END
