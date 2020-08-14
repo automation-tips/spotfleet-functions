@@ -6,23 +6,36 @@
 # boto version 1.14.x ~
 
 import boto3
+from botocore.exceptions import ClientError
 
 # SpotFleet、インスタンスタイプetc設定
-spot_price = "0.02"
+spot_price = "0.04"
 request_type = "persistent"
 # ここではAmazon Linux2 Latest
 image_id = "ami-0cc75a8978fbbc969"
 # 配列で設定するので複数付与することもできる
-security_groups = ["sg-xxxxxxxxxxxxxx"]
-incetance_type = "t2.medium"
+security_groups = ["sg-111111111111111"]
+incetance_type = "t3a.large"
 availability_zone = "ap-northeast-1a"
-subnet_id = "subnet-xxxxxxxxx"
-key_name = "hoge-key"
+subnet_id = "subnet-1234abcd"
+key_name = "hogehoge-key"
 
 client = boto3.client('ec2')
 
 
 def lambda_handler(event, context):
+
+    try:
+        # T3aインスタンスのCPUクレジットバーストの無効化
+        resp = client.modify_default_credit_specification(
+            DryRun=False,
+            InstanceFamily="t3a",
+            CpuCredits="standard"
+        )
+
+    except ClientError as e:
+        # 1度実行すると5分間はAPI側で弾かれてエラーになる
+        print("Error: " + str(e))
 
     # SpotFleetリクエスト
     response = client.request_spot_instances(
@@ -50,7 +63,9 @@ def lambda_handler(event, context):
                 }
             ],
             "SubnetId": subnet_id,
-            "KeyName": key_name
+            "KeyName": key_name,
+            # AWS console上の標準モニタリングの有効化
+            "Monitoring": {"Enabled": True},
         },
         TagSpecifications=[
             {

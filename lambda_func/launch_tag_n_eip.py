@@ -13,6 +13,12 @@ def lambda_handler(event, context):
     # event => {"LaunchedInstance": "id-xxxxxxxxxxs"}
     instance_id = event["LaunchedInstance"]
 
+    resp = client.modify_default_credit_specification(
+        DryRun=True,
+        InstanceFamily="t3",
+        CpuCredits="standard"
+    )
+
     # 対象インスタンスにタグを付与
     resp = client.create_tags(
         Resources=[instance_id],
@@ -43,4 +49,5 @@ def lambda_handler(event, context):
     return eip
 
 
-# print(lambda_handler({"LaunchedInstance": "i-xxxxxxxxxxxxxxxx"}, "aaa")) -> END
+# print(lambda_handler({"LaunchedInstance": "i-xxxxxxxxxxxxxxxx"}, "aaa"))
+# -> END
